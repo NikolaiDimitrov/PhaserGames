@@ -1,0 +1,65 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('space', 'assets/space.png');
+    game.load.spritesheet('ship', 'assets/spaceship.png', 48, 48);
+
+}
+
+var player;
+var platforms;
+
+function create() {
+
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    game.add.sprite(0, 0, 'space');
+
+   
+    player = game.add.sprite(32, game.world.height, 'ship');
+
+    game.physics.arcade.enable(player);
+    player.body.bounce.y = 0.2;
+    player.body.gravity.y = 300;
+    player.body.collideWorldBounds = true;
+
+
+    cursors = game.input.keyboard.createCursorKeys();
+}
+
+function update() {
+    
+player.body.velocity.x = 0;
+ 
+    if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -200;
+    }
+    else if (cursors.right.isDown)
+    {
+        player.body.velocity.x = 200;
+ 
+    }
+ 
+}
+
+</script>
+
+</body>
+</html>
