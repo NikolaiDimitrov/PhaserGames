@@ -20,13 +20,17 @@ function preload() {
     game.load.image('space', 'assets/space.png');
     game.load.image('ship', 'assets/spaceship.png');
     game.load.image('penguins','assets/BadPenguins.png');
+    game.load.image('bullet','assets/fireball.png');
 
 }
 
 var player;
 var platforms;
 var aliens;
-
+var fireButton; 
+var bullets;
+var bulletTime = 0;
+    
 function create() {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -38,13 +42,14 @@ function create() {
     aliens = game.add.group();
     aliens.enableBody = true;
     
-    for (var i = 0; i < 12; i++)
+    for (var i = 0; i < 30; i++)
     {
-        sprite = aliens.create(100 + i*50, 300, 'penguins');
-    	sprite = aliens.create(100 + i*50, 225, 'penguins');
-        sprite = aliens.create(100 + i*50, 150, 'penguins');
-        sprite = aliens.create(100 + i*50, 75, 'penguins');
-    
+
+            sprite = aliens.create(100 + i*50, 300, 'penguins');
+            sprite = aliens.create(100 + i*50, 225, 'penguins');
+            sprite = aliens.create(100 + i*50, 150, 'penguins');
+            sprite = aliens.create(100 + i*50, 75,  'penguins');
+            
     }
 
     
@@ -53,9 +58,17 @@ function create() {
     player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
     
-    
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    bullets.createMultiple(30, 'bullet');
+    bullets.setAll('anchor.x', 0.5);
+    bullets.setAll('anchor.y', 1);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
 
 
+    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     cursors = game.input.keyboard.createCursorKeys();
 }
 
@@ -72,8 +85,39 @@ player.body.velocity.x = 0;
         player.body.velocity.x = 200;
  
     }
- 
+   if (fireButton.isDown)
+   {
+    fireBullet();
+   }
+game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
+    
+    
 }
+    
+  function collisionHandler (bullet, alien) {
+   bullet.kill();
+    alien.kill();
+      
+  }
+    
+    
+ function fireBullet () {
+
+    if (game.time.now > bulletTime)
+    {
+    
+        bullet = bullets.getFirstExists(false);
+
+        if (bullet)
+        {
+            
+            bullet.reset(player.x+25, player.y + 8);
+            bullet.body.velocity.y = -400;
+            bulletTime = game.time.now + 200;
+        }
+    }
+
+}  
 </script>
 
 </body>
