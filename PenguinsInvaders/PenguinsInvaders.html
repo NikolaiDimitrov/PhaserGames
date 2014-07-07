@@ -30,6 +30,9 @@ var aliens;
 var fireButton; 
 var bullets;
 var bulletTime = 0;
+var score = 0;
+var scoreString = '';
+var scoreText;
     
 function create() {
 
@@ -42,17 +45,21 @@ function create() {
     aliens = game.add.group();
     aliens.enableBody = true;
     
-    for (var i = 0; i < 30; i++)
+    
+    for (var i = 0; i < 13; i++)
     {
 
-            sprite = aliens.create(100 + i*50, 300, 'penguins');
-            sprite = aliens.create(100 + i*50, 225, 'penguins');
-            sprite = aliens.create(100 + i*50, 150, 'penguins');
-            sprite = aliens.create(100 + i*50, 75,  'penguins');
+            sprite = aliens.create(80 + i*50, 300, 'penguins');
+            sprite = aliens.create(80 + i*50, 225, 'penguins');
+            sprite = aliens.create(80 + i*50, 150, 'penguins');
+            sprite = aliens.create(80 + i*50, 75,  'penguins');
             
     }
-
     
+    scoreString = 'Score : ';
+    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#FF0000' });
+    
+        
     game.physics.arcade.enable(player);
     player.body.bounce.y = 0.2;
     player.body.gravity.y = 300;
@@ -96,7 +103,10 @@ game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
     
   function collisionHandler (bullet, alien) {
    bullet.kill();
-    alien.kill();
+   alien.kill();
+   
+    score += 100;
+    scoreText.text = scoreString + score;      
       
   }
     
