@@ -21,18 +21,24 @@ function preload() {
     game.load.image('ship', 'assets/spaceship.png');
     game.load.image('penguins','assets/BadPenguins.png');
     game.load.image('bullet','assets/fireball.png');
+    game.load.image('enemybullet','assets/snowball.png');
+    game.load.image('pause','assets/pause.png');
+    game.load.image('heart', 'assets/heart.png')
 
 }
-
+var w = 800;
+var h = 600;
 var player;
 var platforms;
 var aliens;
 var fireButton; 
+var cursor;    
 var bullets;
 var bulletTime = 0;
 var score = 0;
 var scoreString = '';
 var scoreText;
+
     
 function create() {
 
@@ -46,23 +52,27 @@ function create() {
     aliens.enableBody = true;
     
     
-  
-  for (var i = 0; i < 13; i++)
+    for (var i = 0; i < 13 ; i++)
     {
         for(var p = 0; p < 4 ; p++)
             sprite = aliens.create(80 + i*50,80 + p*50, 'penguins');
         
-     }
+            
+    }
  
- 
-    
+   
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#FF0000' });
+    lives = game.add.group();
+    game.add.text(game.world.width -100, 525, 'Lives : ', { font: '34px Arial', fill: '#fff' });
+
+     for (var i = 0; i < 3; i++) 
+    {
+        var heart = lives.create(game.world.width - 80 + (30 * i), 575, 'heart');
+        heart.anchor.setTo(0.5, 0.5);
+    }   
     
-        
     game.physics.arcade.enable(player);
-    player.body.bounce.y = 0.2;
-    player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
     
     bullets = game.add.group();
@@ -73,11 +83,39 @@ function create() {
     bullets.setAll('anchor.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
+    
+    enemyBullets = game.add.group();
+    enemyBullets.enableBody = true;
+    enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    enemyBullets.createMultiple(30, 'enemyBullet');
+    enemyBullets.setAll('anchor.x', 0.5);
+    enemyBullets.setAll('anchor.y', 1);
+    enemyBullets.setAll('outOfBoundsKill', true);
+    enemyBullets.setAll('checkWorldBounds', true);
 
 
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     cursors = game.input.keyboard.createCursorKeys();
+    
+    pause_label = game.add.text(w - 100, 20, 'Pause', { font: '24px Arial', fill: '#fff' });
+    pause_label.inputEnabled = true;
+    pause_label.events.onInputUp.add(function () {
+        game.paused = true;
+        menu = game.add.sprite(w/2, h/2, 'pause');
+        menu.anchor.setTo(0.5, 0.5);
+    });
+    game.input.onDown.add(unpause, self);
+
+    function unpause(){
+        if(game.paused){
+                menu.destroy();
+                game.paused = false;
+            
+        }
+    };
 }
+
+
 
 function update() {
     
@@ -98,7 +136,6 @@ player.body.velocity.x = 0;
    }
 game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
     
-    
 }
     
   function collisionHandler (bullet, alien) {
@@ -109,8 +146,7 @@ game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
     scoreText.text = scoreString + score;      
       
   }
-    
-    
+   
  function fireBullet () {
 
     if (game.time.now > bulletTime)
@@ -127,7 +163,8 @@ game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
         }
     }
 
-}  
+
+ }  
 </script>
 
 </body>
