@@ -43,7 +43,14 @@ var enemyBullet;
 var firingTimer = 0;
 var stateText;
 var livingEnemies = [];
+var enemyShootingSpeed  = 200;
+var chickensOnRow = 13;
+var chickensColumns = 4;    
+var numberOfHearts = 3;
+var bulletsCounter = 0;
 
+
+ 
 
     
 function create() {
@@ -57,6 +64,7 @@ function create() {
    
  
    
+    
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#FF0000' });
     
@@ -69,7 +77,7 @@ function create() {
     stateText.visible = false;
 
      
-    for (var i = 0; i < 3; i++) 
+    for (var i = 0; i < numberOfHearts; i++) 
     {
         var heart = lives.create(game.world.width - 80 + (30 * i), 575, 'heart');
         heart.anchor.setTo(0.5, 0.5);
@@ -105,14 +113,19 @@ function create() {
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     cursors = game.input.keyboard.createCursorKeys();
     
+
+    
+    
     restartButton = game.add.text(w - 200, 20, 'Restart', { font: '24px Arial', fill: '#fff' });
     restartButton.inputEnabled = true;
     restartButton.events.onInputUp.add(restart);
   
-    
+   
     pause_label = game.add.text(w - 100, 20, 'Pause', { font: '24px Arial', fill: '#fff' });
     pause_label.inputEnabled = true;
     pause_label.events.onInputUp.add(pause);
+    
+
     
     game.input.onDown.add(unpause, self);
 
@@ -128,33 +141,13 @@ function create() {
 
 
 function update() {
-    
-player.body.velocity.x = 0;
- 
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -200;
-    }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 200;
- 
-    }
-   if (fireButton.isDown)
-   {
-    fireBullet();
-       
-   }
+  
 
-    if (game.time.now > firingTimer)
-    {
-        enemyFires();
-    }
-    
+    player.body.velocity.x = 0;
+   
+    moving();
     game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
     game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
-    
-    
     
 }
     
@@ -167,9 +160,18 @@ player.body.velocity.x = 0;
     
     if (aliens.countLiving() == 0)
     {
+        if(bulletsCounter =< 52){
+         score+= 1000;
+        }
+        else {
+            score+=500;   
+        }    
+        
         score += 1000;
         scoreText.text = scoreString + score;
-
+        
+        
+        
         enemyBullets.callAll('kill',this);
         stateText.text = " You Won \n Click to restart";
         stateText.visible = true;
@@ -188,9 +190,9 @@ function createAliens() {
      aliens.enableBody = true;
     
     
-    for (var i = 0; i < 13 ; i++)
+    for (var i = 0; i < chickensOnRow ; i++)
     {
-        for(var p = 0; p < 4 ; p++)
+        for(var p = 0; p < chickensColumns ; p++)
             sprite = aliens.create(80 + i*50,80 + p*50, 'penguins');
            }
     
@@ -214,7 +216,9 @@ function createAliens() {
         enemyBullets.callAll('kill');
         stateText.text=" GAME OVER \n Click to restart";
         stateText.visible = true;
+        bullets.visible = false;
 
+        
         
         game.input.onTap.addOnce(restart,this);
     }
@@ -245,7 +249,7 @@ function enemyFires () {
         
         enemyBullet.reset(shooter.body.x, shooter.body.y);
 
-        game.physics.arcade.moveToObject(enemyBullet,player,200);
+        game.physics.arcade.moveToObject(enemyBullet,player,enemyShootingSpeed);
         firingTimer = game.time.now + 2000;
     }
 
@@ -262,10 +266,50 @@ function enemyFires () {
     stateText.visible = false;
     score = 0;
     scoreText.text = scoreString + 0;
+    bulletsCounter = 0;    
+    bullets.visible = true;
     
    
     
 }
+    function moving() {
+        
+        
+      if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -200;
+    }
+    else if (cursors.right.isDown)
+    {
+        player.body.velocity.x = 200;
+ 
+    }
+   if (fireButton.isDown)
+   {
+    fireBullet();
+    bulletsCounter++;
+       
+   }
+
+    if (game.time.now > firingTimer)
+    {
+        
+        enemyFires();
+    }
+       
+        
+        
+        
+        
+    }
+    function easy() {
+            
+    restart();
+    enemyShootingSpeed = enemyShootingSpeed*2;   
+        
+        
+    }
+
     
     function pause () {
     game.paused = true;
