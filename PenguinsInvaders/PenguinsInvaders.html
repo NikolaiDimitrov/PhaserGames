@@ -47,7 +47,7 @@ var enemyShootingSpeed  = 200;
 var chickensOnRow = 13;
 var chickensColumns = 4;    
 var numberOfHearts = 3;
-var bulletsCounter = 0;
+//var bulletsCounter = 0;
 
 
  
@@ -160,13 +160,6 @@ function update() {
     
     if (aliens.countLiving() == 0)
     {
-        if(bulletsCounter =< 52){
-         score+= 1000;
-        }
-        else {
-            score+=500;   
-        }    
-        
         score += 1000;
         scoreText.text = scoreString + score;
         
@@ -266,7 +259,7 @@ function enemyFires () {
     stateText.visible = false;
     score = 0;
     scoreText.text = scoreString + 0;
-    bulletsCounter = 0;    
+   // bulletsCounter = 0;    
     bullets.visible = true;
     
    
@@ -287,7 +280,7 @@ function enemyFires () {
    if (fireButton.isDown)
    {
     fireBullet();
-    bulletsCounter++;
+   // bulletsCounter++;
        
    }
 
@@ -302,13 +295,13 @@ function enemyFires () {
         
         
     }
-    function easy() {
+  function easy() {
             
     restart();
     enemyShootingSpeed = enemyShootingSpeed*2;   
         
         
-    }
+   }
 
     
     function pause () {
