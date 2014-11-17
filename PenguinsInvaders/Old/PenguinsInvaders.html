@@ -24,9 +24,11 @@ function preload() {
     game.load.image('enemyBullet','assets/snowball.png');
     game.load.image('pause','assets/pause.png');
     game.load.image('heart', 'assets/heart.png');
+    game.load.audio('Kaboom', 'assets/Kaboom.ogg');
+    game.load.audio('Theme', 'assets/Theme.ogg');
    
-
 }
+
 var w = 800;
 var h = 600;
 var player;
@@ -84,7 +86,11 @@ function create() {
     }   
     
     
+    music = game.add.audio('Theme',1,true);  // key, volume, loop
+    music.play('',0,1,true);
+    
     createAliens() ;
+    
     
     
     game.physics.arcade.enable(player);
@@ -205,6 +211,7 @@ function createAliens() {
   
     if (lives.countLiving() < 1)
     {
+        game.sound.play('Kaboom'); 
         player.kill();
         enemyBullets.callAll('kill');
         stateText.text=" GAME OVER \n Click to restart";
@@ -280,7 +287,7 @@ function enemyFires () {
    if (fireButton.isDown)
    {
     fireBullet();
-   // bulletsCounter++;
+       // bulletsCounter++;
        
    }
 
@@ -327,6 +334,7 @@ function enemyFires () {
             bullet.reset(player.x+25, player.y + 8);
             bullet.body.velocity.y = -400;
             bulletTime = game.time.now + 200;
+           
         }
     }
 
