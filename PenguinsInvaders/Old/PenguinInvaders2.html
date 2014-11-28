@@ -1,11 +1,57 @@
-var play_state = {
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
 
-  create: function() { 
-
+<script type="text/javascript">
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+function preload() {
+    game.load.image('space', 'assets/space.png');
+    game.load.image('ship', 'assets/spaceship.png');
+    game.load.image('penguins','assets/boss.png');
+    game.load.image('bullet','assets/fireball.png');
+    game.load.image('enemyBullet','assets/snowball.png');
+    game.load.image('pause','assets/pause.png');
+    game.load.image('heart', 'assets/heart.png');
+    game.load.audio('Kaboom', 'assets/Kaboom.ogg');
+    game.load.audio('Theme', 'assets/Theme.ogg');
+   
+}
+var w = 800;
+var h = 600;
+var player;
+var platforms;
+var aliens;
+var fireButton; 
+var cursor;    
+var bullets;
+var bulletTime = 0;
+var score = 0;
+var scoreString = '';
+var scoreText;
+var enemyBullet;
+var firingTimer = 0;
+var stateText;
+var livingEnemies = [];
+var enemyShootingSpeed  = 200;
+var chickensOnRow = 1;
+var chickensColumns = 1;    
+var numberOfHearts = 3;
+var bulletc = 0;
+//var bulletsCounter = 0;
+ 
+    
+function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
-
     game.add.sprite(0, 0, 'space');
-
     
     player = game.add.sprite(32, game.world.height, 'ship');
    
@@ -22,7 +68,6 @@ var play_state = {
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '34px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
     stateText.visible = false;
-
      
     for (var i = 0; i < numberOfHearts; i++) 
     {
@@ -31,7 +76,11 @@ var play_state = {
     }   
     
     
+    music = game.add.audio('Theme',1,true);  // key, volume, loop
+    music.play('',0,1,true);
+    
     createAliens() ;
+    
     
     
     game.physics.arcade.enable(player);
@@ -54,13 +103,9 @@ var play_state = {
     enemyBullets.setAll('anchor.y', 1);
     enemyBullets.setAll('outOfBoundsKill', true);
     enemyBullets.setAll('checkWorldBounds', true);
-
-
-
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     cursors = game.input.keyboard.createCursorKeys();
     
-
     
     
     restartButton = game.add.text(w - 200, 20, 'Restart', { font: '24px Arial', fill: '#fff' });
@@ -72,10 +117,8 @@ var play_state = {
     pause_label.inputEnabled = true;
     pause_label.events.onInputUp.add(pause);
     
-
     
     game.input.onDown.add(unpause, self);
-
     function unpause(){
         if(game.paused){
                 menu.destroy();
@@ -84,29 +127,28 @@ var play_state = {
         }
     };
 }
-
-
-
 function update() {
   
-
     player.body.velocity.x = 0;
    
     moving();
+    
     game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
     game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
     
 }
     
   function collisionHandler (bullet, alien) {
-    bullet.kill();
-    alien.kill();
+        bullet.kill();
+        //alien.kill();
    
     score += 100;
     scoreText.text = scoreString + score;  
-    
+    if (score == 1000) {
+        alien.kill();
     if (aliens.countLiving() == 0)
     {
+       
         score += 1000;
         scoreText.text = scoreString + score;
         
@@ -122,7 +164,7 @@ function update() {
     }
       
   }
-   
+  }
 function createAliens() {
     
     
@@ -133,7 +175,7 @@ function createAliens() {
     for (var i = 0; i < chickensOnRow ; i++)
     {
         for(var p = 0; p < chickensColumns ; p++)
-            sprite = aliens.create(80 + i*50,80 + p*50, 'penguins');
+            sprite = aliens.create(400 + i*50,240 + p*50, 'penguins');
            }
     
 }
@@ -141,9 +183,7 @@ function createAliens() {
     function enemyHitsPlayer (player,bullet) {
     
     bullet.kill();
-
     live = lives.getFirstAlive();
-
     if (live)
     {
         live.kill();
@@ -152,51 +192,38 @@ function createAliens() {
   
     if (lives.countLiving() < 1)
     {
+        game.sound.play('Kaboom'); 
         player.kill();
         enemyBullets.callAll('kill');
         stateText.text=" GAME OVER \n Click to restart";
         stateText.visible = true;
         bullets.visible = false;
-
         
         
         game.input.onTap.addOnce(restart,this);
     }
-
 }
-
 function enemyFires () {
-
     
     enemyBullet = enemyBullets.getFirstExists(false);
-
     livingEnemies.length=0;
-
     aliens.forEachAlive(function(alien){
-
         
         livingEnemies.push(alien);
     });
-
-
     if (enemyBullet && livingEnemies.length > 0)
     {
         
         var random=game.rnd.integerInRange(0,livingEnemies.length-1);
-
       
         var shooter=livingEnemies[random];
         
         enemyBullet.reset(shooter.body.x, shooter.body.y);
-
         game.physics.arcade.moveToObject(enemyBullet,player,enemyShootingSpeed);
-        firingTimer = game.time.now + 2000;
+        firingTimer = game.time.now + 600;
     }
-
 }
-
     function restart () {
-
     lives.callAll('revive');
     aliens.removeAll();
     createAliens();
@@ -227,10 +254,9 @@ function enemyFires () {
    if (fireButton.isDown)
    {
     fireBullet();
-   // bulletsCounter++;
+       // bulletsCounter++;
        
    }
-
     if (game.time.now > firingTimer)
     {
         
@@ -249,7 +275,6 @@ function enemyFires () {
         
         
    }
-
     
     function pause () {
     game.paused = true;
@@ -258,26 +283,26 @@ function enemyFires () {
     
     choiseLabel = game.add.text(w/2, h-250, 'Click to continue', { font: '30px Arial', fill: '#fff' });
     choiseLabel.anchor.setTo(0.5, 0.5);
-
     }
     
  function fireBullet () {
-
     if (game.time.now > bulletTime)
     {
     
         bullet = bullets.getFirstExists(false);
-
         if (bullet)
         {
             
             bullet.reset(player.x+25, player.y + 8);
             bullet.body.velocity.y = -400;
             bulletTime = game.time.now + 200;
+           
         }
     }
+ }  
+    
+    
+</script>
 
-
-
-
- };
+</body>
+</html>
