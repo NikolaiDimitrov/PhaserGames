@@ -1,34 +1,57 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
 
-BasicGame.Game = function (game) {
-    var w = 800;
-    var h = 600;
-    var player;
-    var platforms;
-    var aliens;
-    var fireButton; 
-    var cursor;    
-    var bullets;
-    var bulletTime = 0;
-    var score = 0;
-    var scoreString = '';
-    var scoreText;
-    var enemyBullet;
-    var firingTimer = 0;
-    var stateText;
-    var livingEnemies = [];
-    var enemyShootingSpeed  = 200;
-    var chickensOnRow = 13;
-    var chickensColumns = 4;    
-    var numberOfHearts = 3;
-};
-
-BasicGame.Game.prototype = {
-
-  create: function () {
-
-    this.sea = this.add.tileSprite(0, 0, 800, 600, 'space');
+<script type="text/javascript">
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+function preload() {
+    game.load.image('space', 'assets/space.png');
+    game.load.image('ship', 'assets/spaceship.png');
+    game.load.image('penguins','assets/boss.png');
+    game.load.image('bullet','assets/fireball.png');
+    game.load.image('enemyBullet','assets/snowball.png');
+    game.load.image('pause','assets/pause.png');
+    game.load.image('heart', 'assets/heart.png');
+    game.load.audio('Kaboom', 'assets/Kaboom.ogg');
+    game.load.audio('Theme', 'assets/Theme.ogg');
+   
+}
+var w = 800;
+var h = 600;
+var player;
+var platforms;
+var aliens;
+var fireButton; 
+var cursor;    
+var bullets;
+var bulletTime = 0;
+var score = 0;
+var healthBar = 100;
+var scoreString = '';
+var scoreText;
+var stringP;
+var enemyBullet;
+var firingTimer = 0;
+var stateText;
+var livingEnemies = [];
+var enemyShootingSpeed  = 200;
+var chickensOnRow = 1;
+var chickensColumns = 1;    
+var numberOfHearts = 3;
+var bulletc = 0;
+var bulletsCounter = 0;
+ 
     
-    
+function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'space');
     
@@ -37,8 +60,9 @@ BasicGame.Game.prototype = {
  
    
     
-    scoreString = 'Score : ';
-    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#FF0000' });
+    scoreString = 'Boss Health: ';
+    stringP = '%';
+    scoreText = game.add.text(250, 10, scoreString + healthBar + stringP, { font: '34px Arial', fill: '#FF0000' });
     
     lives = game.add.group();
     game.add.text(game.world.width -100, 525, 'Lives : ', { font: '34px Arial', fill: '#fff' });
@@ -97,39 +121,47 @@ BasicGame.Game.prototype = {
     pause_label.events.onInputUp.add(pause);
     
     
-    game.input.onDown.add(unpause, self); 
-
-  },
-
-    
-  update: function () {
-   player.body.velocity.x = 0;
-   
-    moving();
-    game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
-    game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, th
-  },
-
-    unpause: function(){
+    game.input.onDown.add(unpause, self);
+    function unpause(){
         if(game.paused){
                 menu.destroy();
                 game.paused = false;
                 choiseLabel.destroy();
         }
     };
-    
-      
-  collisionHandler: function(bullet, alien) {
-    bullet.kill();
-    alien.kill();
+}
+function update() {
+  
+    player.body.velocity.x = 0;
    
-    score += 100;
-    scoreText.text = scoreString + score;  
+    moving();
     
+         
+         
+         
+         
+     }
+    game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
+    game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
+    
+}
+    
+  function collisionHandler (bullet, alien) {
+    
+      bullet.kill();
+        //alien.kill();
+    bulletsCounter += 1
+    score += 100;
+   
+    healthBar -= 10;
+    scoreText.text = scoreString + healthBar + stringP;  
+    if (bulletsCounter == 10) {    
+        alien.kill();
     if (aliens.countLiving() == 0)
     {
+       
         score += 1000;
-        scoreText.text = scoreString + score;
+        scoreText.text = scoreString + healthBar;
         
         
         
@@ -143,8 +175,8 @@ BasicGame.Game.prototype = {
     }
       
   }
-    
-  createAliens: function () {
+  }
+function createAliens() {
     
     
      aliens = game.add.group();
@@ -154,12 +186,18 @@ BasicGame.Game.prototype = {
     for (var i = 0; i < chickensOnRow ; i++)
     {
         for(var p = 0; p < chickensColumns ; p++)
-            sprite = aliens.create(80 + i*50,80 + p*50, 'penguins');
+            sprite = aliens.create(400 + i*50,240 + p*50, 'penguins');
            }
     
-}  
+      
+    aliens.x = 65;
+    aliens.y = 50;
+   
+
+}
     
-    enemyHitsPlayer: function(player,bullet) {
+    
+    function enemyHitsPlayer (player,bullet) {
     
     bullet.kill();
     live = lives.getFirstAlive();
@@ -182,8 +220,7 @@ BasicGame.Game.prototype = {
         game.input.onTap.addOnce(restart,this);
     }
 }
-    
-  enemyFires: function() {
+function enemyFires () {
     
     enemyBullet = enemyBullets.getFirstExists(false);
     livingEnemies.length=0;
@@ -200,25 +237,29 @@ BasicGame.Game.prototype = {
         
         enemyBullet.reset(shooter.body.x, shooter.body.y);
         game.physics.arcade.moveToObject(enemyBullet,player,enemyShootingSpeed);
-        firingTimer = game.time.now + 2000;
+        firingTimer = game.time.now + 600;
     }
-} 
+}
+    function restart () {
+    healthBar = 100;
+    bulletsCounter = 0;
+    lives.callAll('revive');
+    aliens.removeAll();
+    createAliens();
+    bullets.callAll('kill');
+    enemyBullets.callAll('kill');
+    player.revive();
+    stateText.visible = false;
+    score = 0;
+    scoreText.text = scoreString + 0;
+   // bulletsCounter = 0;    
+    bullets.visible = true;
+     
     
-    restat: function () {
-        lives.callAll('revive');
-        aliens.removeAll();
-        createAliens();
-        bullets.callAll('kill');
-        enemyBullets.callAll('kill');
-        player.revive();
-        stateText.visible = false;
-        score = 0;
-        scoreText.text = scoreString + 0;
-       // bulletsCounter = 0;    
-        bullets.visible = true;
-    }
+   
     
-    moving: function () {
+}
+    function moving() {
         
         
       if (cursors.left.isDown)
@@ -241,18 +282,30 @@ BasicGame.Game.prototype = {
         
         enemyFires();
     }
- }
+       
+        
+        
+        
+        
+    }
+  function easy() {
+            
+    restart();
+    enemyShootingSpeed = enemyShootingSpeed*2;   
+        
+        
+   }
     
-    pause: function () {
-        game.paused = true;
-        menu = game.add.sprite(w/2, h/2, 'pause');
-        menu.anchor.setTo(0.5, 0.5);
-
-        choiseLabel = game.add.text(w/2, h-250, 'Click to continue', { font: '30px Arial', fill: '#fff' });
-        choiseLabel.anchor.setTo(0.5, 0.5);
-    } 
+    function pause () {
+    game.paused = true;
+    menu = game.add.sprite(w/2, h/2, 'pause');
+    menu.anchor.setTo(0.5, 0.5);
     
-    firebullet: function () {
+    choiseLabel = game.add.text(w/2, h-250, 'Click to continue', { font: '30px Arial', fill: '#fff' });
+    choiseLabel.anchor.setTo(0.5, 0.5);
+    }
+    
+ function fireBullet () {
     if (game.time.now > bulletTime)
     {
     
@@ -268,14 +321,8 @@ BasicGame.Game.prototype = {
     }
  }  
     
-    quitGame: function (pointer) {
+    
+</script>
 
-    //  Here you should destroy anything you no longer need.
-    //  Stop music, delete sprites, purge caches, free resources, all that good stuff.
-
-    //  Then let's go back to the main menu.
-    this.state.start('MainMenu');
-
-  }
-
-};
+</body>
+</html>

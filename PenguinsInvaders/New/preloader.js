@@ -44,10 +44,32 @@ BasicGame.Preloader.prototype = {
 
     //  Once the load has finished we disable the crop because we're going to sit in the update loop for a short while as the music decodes
     this.preloadBar.cropEnabled = false;
-
+  /*
+      var w = 800;
+    var h = 600;
+    var player;
+    var platforms;
+    var aliens;
+    var fireButton; 
+    var cursor;    
+    var bullets;
+    var bulletTime = 0;
+    var score = 0;
+    var scoreString = '';
+    var scoreText;
+    var enemyBullet;
+    var firingTimer = 0;
+    var stateText;
+    var livingEnemies = [];
+    var enemyShootingSpeed  = 200;
+    var chickensOnRow = 13;
+    var chickensColumns = 4;    
+    var numberOfHearts = 3;
+*/
   },
 
   update: function () {
+      
 
     //  You don't actually need to do this, but I find it gives a much smoother game experience.
     //  Basically it will wait for our audio file to be decoded before proceeding to the MainMenu.
