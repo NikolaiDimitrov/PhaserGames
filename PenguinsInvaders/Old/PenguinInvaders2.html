@@ -14,9 +14,9 @@
 <script type="text/javascript">
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 function preload() {
-    game.load.image('space', 'assets/space.png');
+    game.load.image('space', 'assets/space_level2.png');
     game.load.image('ship', 'assets/spaceship.png');
-    game.load.image('penguins','assets/boss.png');
+    game.load.image('penguins','assets/BadPenguins.png');
     game.load.image('bullet','assets/fireball.png');
     game.load.image('enemyBullet','assets/snowball.png');
     game.load.image('pause','assets/pause.png');
@@ -46,20 +46,24 @@ var chickensOnRow = 1;
 var chickensColumns = 1;    
 var numberOfHearts = 3;
 var bulletc = 0;
-//var bulletsCounter = 0;
+var bulletsCounter = 0;
+var healthText;
+var health = 100;
  
     
 function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'space');
     
-    player = game.add.sprite(32, game.world.height, 'ship');
+    player = game.add.sprite(64, game.world.height, 'ship');
    
  
    
     
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#FF0000' });
+    
+    
     
     lives = game.add.group();
     game.add.text(game.world.width -100, 525, 'Lives : ', { font: '34px Arial', fill: '#fff' });
@@ -107,7 +111,7 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     
     
-    
+    healthText = game.add.text(w - 500, 20, 'Health:' + health, { font: '32px Arial', fill: '#fff' });
     restartButton = game.add.text(w - 200, 20, 'Restart', { font: '24px Arial', fill: '#fff' });
     restartButton.inputEnabled = true;
     restartButton.events.onInputUp.add(restart);
@@ -116,6 +120,8 @@ function create() {
     pause_label = game.add.text(w - 100, 20, 'Pause', { font: '24px Arial', fill: '#fff' });
     pause_label.inputEnabled = true;
     pause_label.events.onInputUp.add(pause);
+    
+    
     
     
     game.input.onDown.add(unpause, self);
@@ -140,11 +146,14 @@ function update() {
     
   function collisionHandler (bullet, alien) {
         bullet.kill();
+      
         //alien.kill();
-   
+    health -= 10;
     score += 100;
-    scoreText.text = scoreString + score;  
-    if (score == 1000) {
+    healthText.text = "Health:" + health;
+    scoreText.text = scoreString + score; 
+    bulletsCounter++;
+    if (health == 0) {
         alien.kill();
     if (aliens.countLiving() == 0)
     {
@@ -235,6 +244,8 @@ function enemyFires () {
     scoreText.text = scoreString + 0;
    // bulletsCounter = 0;    
     bullets.visible = true;
+    health = 100;
+        
     
    
     
@@ -268,13 +279,7 @@ function enemyFires () {
         
         
     }
-  function easy() {
-            
-    restart();
-    enemyShootingSpeed = enemyShootingSpeed*2;   
-        
-        
-   }
+  
     
     function pause () {
     game.paused = true;
