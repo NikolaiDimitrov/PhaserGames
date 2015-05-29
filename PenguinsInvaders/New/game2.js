@@ -1,4 +1,4 @@
-BasicGame.Game = function (game) {
+BasicGame.Gamedd = function (game) {
 
 };
 
