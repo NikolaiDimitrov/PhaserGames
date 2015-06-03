@@ -1,4 +1,0 @@
-http://www.html5gamedevs.com
-http://www.lessmilk.com/phaser-tutorial/
-http://examples.phaser.io/
-http://docs.phaser.io/
