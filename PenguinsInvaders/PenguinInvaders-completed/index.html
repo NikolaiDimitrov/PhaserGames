@@ -7,6 +7,8 @@
             <script src="src/gametitle.js"></script>
             <script src="src/thegame.js"></script>
             <script src="src/thegame2.js"></script>
+            <script src="src/thegame3.js"></script>
+            <script src="src/bosslevel.js"></script>
             <script src="src/gameover.js"></script>	
     		<style>
     			body{margin:0}
@@ -18,7 +20,9 @@
 				game.state.add("Preload",preload);
 				game.state.add("GameTitle",gameTitle);
 				game.state.add("TheGame",theGame);
-                game.state.add("TheGamee2",theGame2);
+                		game.state.add("TheGame2",theGame2);
+                		game.state.add("TheGame3",theGame3);
+                		game.state.add("BossLevel",bossLevel);
 				game.state.add("GameOver",gameOver);
 				game.state.start("Boot");
 			})();    
